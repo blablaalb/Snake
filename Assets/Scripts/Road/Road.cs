@@ -15,14 +15,17 @@ public class Road : MonoBehaviour
     private People _pplPrefab;
     private Color _mainColor;
     private Color _secondaryColor;
+    private RoadSegment _roadSegment;
 
-    public static float Length = 10f;
-    public static float Width = 10f;
+    internal void Awake()
+    {
+        _roadSegment = GetComponentInParent<RoadSegment>();
+    }
 
     internal void OnEnable()
     {
-        _mainColor = LevelManager.Instance.MainColor;
-        _secondaryColor = LevelManager.Instance.SecondaryColor;
+        _mainColor = _roadSegment.MainColor;
+        _secondaryColor = _roadSegment.SecondaryColor;
         SpawnPpl();
     }
 
@@ -45,7 +48,6 @@ public class Road : MonoBehaviour
             Instantiate<People>(_pplPrefab, _right.position, Quaternion.identity, transform).SetColor(RandomColor());
         }
     }
-
 
     private Color RandomColor()
     {
