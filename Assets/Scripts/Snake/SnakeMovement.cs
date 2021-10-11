@@ -88,10 +88,6 @@ public class SnakeMovement : Singleton<SnakeMovement>
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit))
             {
-                // var position = transform.position;
-                // position.x = Mathf.Lerp(position.x, hit.point.x, _xSpeed * Time.deltaTime);
-                // position.x = Mathf.Clamp(position.x, -RoadSegment.Width, RoadSegment.Width);
-                // transform.position = position;
                 MoveX(hit.point.x);
             }
         }
