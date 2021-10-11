@@ -4,23 +4,31 @@ using System.Linq;
 using System;
 using Random = UnityEngine.Random;
 using Object = UnityEngine.Object;
+using DG.Tweening;
 
 public class Obstacle : MonoBehaviour
 {
-	internal void Awake()
-	{
-		
-	}
+    private Transform _snake;
 
-    // Start is called before the first frame update
-    internal void Start()
+    internal void Awake()
     {
-        
+        _snake = FindObjectOfType<Snake>().transform;
     }
 
-    // Update is called once per frame
-    internal void Update()
+    internal void OnTriggerEnter(Collider other)
     {
-        
+        if (other.transform.GetComponent<Snake>())
+        {
+            if (!Fiverr.Instance.Activated)
+                LevelManager.Instance.Lost();
+            else Eaten();
+        }
+    }
+
+    public void Eaten()
+    {
+        transform.SetParent(_snake);
+        transform.DOScale(Vector3.zero, duration: 0.25f);
+        transform.DOLocalMove(Vector3.zero, duration:0.5f).OnComplete(() => gameObject.SetActive(false));
     }
 }

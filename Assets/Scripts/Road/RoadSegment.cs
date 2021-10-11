@@ -21,6 +21,8 @@ public class RoadSegment : MonoBehaviour
 
     public void RandomizeColors()
     {
+        if (LevelManager.Instance != null){
+
         int mainIndx = Random.Range(0, LevelManager.Instance.AvailableColors.Length);
         int secondaryIndx = Random.Range(0, LevelManager.Instance.AvailableColors.Length);
         if (secondaryIndx == mainIndx)
@@ -31,6 +33,7 @@ public class RoadSegment : MonoBehaviour
 
         MainColor = LevelManager.Instance.AvailableColors[mainIndx];
         SecondaryColor = LevelManager.Instance.AvailableColors[secondaryIndx];
+        }
     }
 
     internal void OnTriggerEnter(Collider other)

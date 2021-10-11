@@ -4,6 +4,7 @@ using System.Linq;
 using System;
 using Random = UnityEngine.Random;
 using Object = UnityEngine.Object;
+using UnityEngine.SceneManagement;
 using Common;
 
 public class LevelManager : Singleton<LevelManager>
@@ -14,6 +15,7 @@ public class LevelManager : Singleton<LevelManager>
     public Color[] AvailableColors => _colors;
     public Color MainColor { get; private set; }
     public Color SecondaryColor { get; private set; }
+    public Action<SessionResult> SessionFinished;
 
     override protected void Awake()
     {
@@ -24,8 +26,8 @@ public class LevelManager : Singleton<LevelManager>
 
     override protected void OnDestroy()
     {
-        base.OnDestroy();
         RoadSegment.ActiveRoadSegmentChanged -= OnActiveRoadSegmentChanged;
+        base.OnDestroy();
     }
 
     public void RandomizeColors()
@@ -51,6 +53,22 @@ public class LevelManager : Singleton<LevelManager>
 
     public void Lost()
     {
-        Debug.Log("Lost");
+        SessionFinished?.Invoke(SessionResult.Lost);
     }
+
+    public void Won()
+    {
+        SessionFinished?.Invoke(SessionResult.Won);
+    }
+
+    public void Restart()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+}
+
+public enum SessionResult
+{
+    Won,
+    Lost
 }

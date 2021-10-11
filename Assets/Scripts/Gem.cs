@@ -4,23 +4,22 @@ using System.Linq;
 using System;
 using Random = UnityEngine.Random;
 using Object = UnityEngine.Object;
+using DG.Tweening;
 
 public class Gem : MonoBehaviour
 {
-	internal void Awake()
-	{
-		
-	}
+    private bool _added;
 
-    // Start is called before the first frame update
-    internal void Start()
+    internal void OnTriggerEnter(Collider other)
     {
-        
-    }
-
-    // Update is called once per frame
-    internal void Update()
-    {
-        
+        if (_added) return;
+        if (other.GetComponent<Snake>() is Snake snake)
+        {
+            GameManager.Instance.AddGems(1);
+            transform.SetParent(snake.transform);
+            transform.DOLocalMove(Vector3.zero, duration: .5f);
+            transform.DOScale(Vector3.zero, 0.5f);
+            _added = true;
+        }
     }
 }

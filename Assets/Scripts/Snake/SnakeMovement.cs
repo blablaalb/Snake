@@ -28,24 +28,31 @@ public class SnakeMovement : Singleton<SnakeMovement>
     [SerializeField]
     private float _xSpeed = 10f;
     private List<People> _collided;
+    private bool _move;
 
     public float ZSpeed => _zSpeed;
+    public bool Controllable { get; set; }
 
     override protected void Awake()
     {
         base.Awake();
         _collided = new List<People>();
+        _move = true;
+        Controllable = true;
     }
 
     internal void Start()
     {
         UpdateColor();
+        LevelManager.Instance.SessionFinished += (_) => Stop();
     }
 
     internal void Update()
     {
+        if (!_move) return;
         MoveZ();
-        MoveX();
+        if (Controllable)
+            MoveX();
         FollowZ();
         FollowX();
     }
@@ -81,12 +88,21 @@ public class SnakeMovement : Singleton<SnakeMovement>
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit))
             {
-                var position = transform.position;
-                position.x = Mathf.Lerp(position.x, hit.point.x, _xSpeed * Time.deltaTime);
-                position.x = Mathf.Clamp(position.x, -RoadSegment.Width, RoadSegment.Width);
-                transform.position = position;
+                // var position = transform.position;
+                // position.x = Mathf.Lerp(position.x, hit.point.x, _xSpeed * Time.deltaTime);
+                // position.x = Mathf.Clamp(position.x, -RoadSegment.Width, RoadSegment.Width);
+                // transform.position = position;
+                MoveX(hit.point.x);
             }
         }
+    }
+
+    public void MoveX(float x)
+    {
+        var position = transform.position;
+        position.x = Mathf.Lerp(position.x, x, _xSpeed * Time.deltaTime);
+        position.x = Mathf.Clamp(position.x, -RoadSegment.Width, RoadSegment.Width);
+        transform.position = position;
     }
 
     private void MoveZ()
@@ -147,6 +163,7 @@ public class SnakeMovement : Singleton<SnakeMovement>
                 if (ppl.Color == LevelManager.Instance.MainColor)
                 {
                     AddBodyPart();
+                    ppl.Eaten();
                 }
                 else if (ppl.Color == LevelManager.Instance.SecondaryColor)
                 {
@@ -162,5 +179,10 @@ public class SnakeMovement : Singleton<SnakeMovement>
         {
             _bodyParts[i].GetComponentInChildren<MeshRenderer>().material.color = LevelManager.Instance.MainColor;
         }
+    }
+
+    public void Stop()
+    {
+        _move = false;
     }
 }
