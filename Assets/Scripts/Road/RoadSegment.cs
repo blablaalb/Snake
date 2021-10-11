@@ -41,12 +41,6 @@ public class RoadSegment : MonoBehaviour
                 return;
             }
 
-            if (MainColor != default(Color))
-            {
-                if (LevelManager.Instance.AvailableColors[mainIndx] == MainColor)
-                    RandomizeColors();
-                return;
-            }
             MainColor = LevelManager.Instance.AvailableColors[mainIndx];
             SecondaryColor = LevelManager.Instance.AvailableColors[secondaryIndx];
             _colorLineMaterial.color = MainColor;

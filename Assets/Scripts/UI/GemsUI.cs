@@ -18,15 +18,24 @@ public class GemsUI : MonoBehaviour
     internal void Start()
     {
         GameManager.Instance.GemsAdded += OnGemsAdded;
+        GameManager.Instance.GemSubtracted += OnGemsSubtracted;
     }
 
     internal void OnDestroy()
     {
         if (GameManager.Instance != null)
+        {
             GameManager.Instance.GemsAdded -= OnGemsAdded;
+            GameManager.Instance.GemSubtracted -= OnGemsSubtracted;
+        }
     }
 
     private void OnGemsAdded(int count)
+    {
+        _tmpro.SetText(GameManager.Instance.Gems.ToString());
+    }
+
+    private void OnGemsSubtracted(int count)
     {
         _tmpro.SetText(GameManager.Instance.Gems.ToString());
     }

@@ -6,7 +6,7 @@ using Random = UnityEngine.Random;
 using Object = UnityEngine.Object;
 using DG.Tweening;
 
-public class Obstacle : MonoBehaviour
+public class Obstacle : MonoBehaviour, IEatable
 {
     private Transform _snake;
 

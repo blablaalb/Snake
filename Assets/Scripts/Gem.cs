@@ -6,7 +6,7 @@ using Random = UnityEngine.Random;
 using Object = UnityEngine.Object;
 using DG.Tweening;
 
-public class Gem : MonoBehaviour
+public class Gem : MonoBehaviour, IEatable
 {
     private bool _added;
 
@@ -15,11 +15,17 @@ public class Gem : MonoBehaviour
         if (_added) return;
         if (other.GetComponent<Snake>() is Snake snake)
         {
-            GameManager.Instance.AddGems(1);
-            transform.SetParent(snake.transform);
-            transform.DOLocalMove(Vector3.zero, duration: .5f);
-            transform.DOScale(Vector3.zero, 0.5f);
-            _added = true;
+            Eaten();
         }
+    }
+
+    public void Eaten()
+    {
+        var snake = FindObjectOfType<Snake>();
+        GameManager.Instance.AddGems(1);
+        transform.SetParent(snake.transform);
+        transform.DOLocalMove(Vector3.zero, duration: .5f);
+        transform.DOScale(Vector3.zero, 0.5f);
+        _added = true;
     }
 }

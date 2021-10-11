@@ -7,7 +7,7 @@ using Object = UnityEngine.Object;
 using System.Collections;
 using DG.Tweening;
 
-public class People : MonoBehaviour
+public class People : MonoBehaviour, IEatable
 {
     private Color _color;
     private Material[] _materials;

@@ -16,6 +16,7 @@ public class Fiverr : Singleton<Fiverr>
     public bool Activated { get; private set; }
     public event Action FiverStarted;
     public event Action FiverFinished;
+    public float Countdown {get; private set;}
 
     override protected void Awake()
     {
@@ -49,7 +50,7 @@ public class Fiverr : Singleton<Fiverr>
                 Activated = true;
                 _snakeMovement.Controllable = false;
                 float countdown = _duration;
-                DOTween.To(() => countdown, x => countdown = x, 0f, _duration).OnComplete(() => FinishFiver());
+                DOTween.To(() => countdown, x => countdown = x, 0f, _duration).OnUpdate(() => Countdown = countdown). OnComplete(() => FinishFiver());
                 FiverStarted?.Invoke();
             }
     }
@@ -57,7 +58,7 @@ public class Fiverr : Singleton<Fiverr>
     private void FinishFiver()
     {
         _snakeMovement.Controllable = true;
-        GameManager.Instance.SubtractGems(3);
+        GameManager.Instance.SubtractGems(GameManager.Instance.Gems);
         Activated = false;
         FiverFinished?.Invoke();
     }

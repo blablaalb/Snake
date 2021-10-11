@@ -5,6 +5,8 @@ using System;
 using Random = UnityEngine.Random;
 using Object = UnityEngine.Object;
 using Common;
+using DG.Tweening;
+using System.Collections.ObjectModel;
 
 public class SnakeMovement : Singleton<SnakeMovement>
 {
@@ -29,13 +31,18 @@ public class SnakeMovement : Singleton<SnakeMovement>
     private float _xSpeed = 10f;
     private List<People> _collided;
     private bool _move;
+    [SerializeField]
+    private Transform _largeCollider;
+    private List<IEatable> _eaten;
 
     public float ZSpeed => _zSpeed;
     public bool Controllable { get; set; }
+    public ReadOnlyCollection<IEatable> Eaten => new ReadOnlyCollection<IEatable>(_eaten);
 
     override protected void Awake()
     {
         base.Awake();
+        _eaten = new List<IEatable>();
         _collided = new List<People>();
         _move = true;
         Controllable = true;
@@ -45,6 +52,18 @@ public class SnakeMovement : Singleton<SnakeMovement>
     {
         UpdateColor();
         LevelManager.Instance.SessionFinished += (_) => Stop();
+        var onTriggerCallback = _largeCollider.GetComponent<OnTriggerCallback>();
+        Fiverr.Instance.FiverStarted += () =>
+        {
+            onTriggerCallback.TriggerEnter = (collider) =>
+            {
+                if (Fiverr.Instance.Activated)
+                    if (collider.GetComponent<IEatable>() is IEatable eatable)
+                    {
+                        Eat(eatable);
+                    }
+            };
+        };
     }
 
     internal void Update()
@@ -97,7 +116,7 @@ public class SnakeMovement : Singleton<SnakeMovement>
     {
         var position = transform.position;
         position.x = Mathf.Lerp(position.x, x, _xSpeed * Time.deltaTime);
-        position.x = Mathf.Clamp(position.x, -RoadSegment.Width, RoadSegment.Width);
+        position.x = Mathf.Clamp(position.x, -(RoadSegment.Width / 2 -1), RoadSegment.Width / 2- 1);
         transform.position = position;
     }
 
@@ -106,6 +125,9 @@ public class SnakeMovement : Singleton<SnakeMovement>
         var position = transform.position;
         position.z += _zSpeed * Time.deltaTime;
         transform.position = position;
+        Vector3 largeColliderPosition = transform.position + new Vector3(0, 0, 1f);
+        largeColliderPosition.x = 0f;
+        _largeCollider.transform.position = largeColliderPosition;
     }
 
     private void FollowZ()
@@ -137,10 +159,10 @@ public class SnakeMovement : Singleton<SnakeMovement>
             float dirNorm = (previousBp.transform.position.x - bp.transform.position.x) / Mathf.Abs(previousBp.transform.position.x - bp.transform.position.x);
             var dir = previousBp.transform.position - bp.transform.position;
             float x = previousBp.transform.position.x;
-            x = Mathf.Lerp(bp.transform.position.x, x, _xDump);
+            x = Mathf.Lerp(bp.transform.position.x, x, _xDump * Time.deltaTime);
             if (distance > _maxXDistance)
             {
-                x += (distance - _maxXDistance) * dirNorm;
+                // x += (distance - _maxXDistance) * dirNorm;
             }
             Vector3 newPos = bp.transform.position;
             newPos.x = x;
@@ -159,11 +181,12 @@ public class SnakeMovement : Singleton<SnakeMovement>
                 if (ppl.Color == LevelManager.Instance.MainColor)
                 {
                     AddBodyPart();
-                    ppl.Eaten();
+                    Eat(ppl);
                 }
                 else if (ppl.Color == LevelManager.Instance.SecondaryColor)
                 {
-                    LevelManager.Instance.Lost();
+                    if (!_eaten.Contains(ppl))
+                        LevelManager.Instance.Lost();
                 }
             }
         }
@@ -180,5 +203,11 @@ public class SnakeMovement : Singleton<SnakeMovement>
     public void Stop()
     {
         _move = false;
+    }
+
+    public void Eat(IEatable eatable)
+    {
+        _eaten.Add(eatable);
+        eatable.Eaten();
     }
 }
